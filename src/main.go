@@ -39,7 +39,7 @@ func main() {
 	auto = getSelectionType()
 
 	// Open input file
-	inFile, err := os.Open(path.Join(root, "in", inFileName))
+	inFile, err := os.Open(path.Join(root, inFileName))
 	if err != nil {
 		log.Fatalf("opening words file: %v", err)
 	}
@@ -60,7 +60,7 @@ func main() {
 	}
 
 	// Open output file
-	outFile, err := os.Create(path.Join(root, "out", outFileName))
+	outFile, err := os.Create(path.Join(root, outFileName))
 	if err != nil {
 		log.Fatalf("creating out file: %v", err)
 	}
@@ -85,14 +85,14 @@ func getFileNames() (string, string) {
 	inputScanner.Scan()
 	inFileName := inputScanner.Text()
 	if inFileName == "" {
-		inFileName = "test.txt"
+		inFileName = "in/test.txt"
 	}
 
 	fmt.Print("Output file (default 'definitions.json'): ")
 	inputScanner.Scan()
 	outFileName := inputScanner.Text()
 	if outFileName == "" {
-		outFileName = "definitions.json"
+		outFileName = "out/definitions.json"
 	}
 
 	fmt.Printf("\nIn file:  %s\nOut file: %s\n\n", inFileName, outFileName)
@@ -156,8 +156,8 @@ func (d Definition) String() string {
 	return fmt.Sprintf("%s : %s", d.Word, d.Definition)
 }
 
-// https://www.google.com/#q=define+term
+// Endpoints
 
-// Opts
+// Dictionary.com: https://www.dictionary.com/browse/%s
 
-// https://www.dictionary.com/browse/garrulous
+// https://www.google.com/#q=define+term ??
