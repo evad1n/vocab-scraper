@@ -5,11 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"path"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 type (
@@ -81,7 +78,7 @@ func FindDefinitions() {
 func getFileNames() (string, string) {
 	inputScanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Print("Input file (default 'words.txt'): ")
+	fmt.Print("\nInput file (default 'words.txt'): ")
 	inputScanner.Scan()
 	inFileName := inputScanner.Text()
 	if inFileName == "" {
@@ -113,38 +110,44 @@ func getSelectionType() bool {
 }
 
 func getDef(word string) Definition {
-	r, err := http.Get(fmt.Sprintf("https://www.dictionary.com/browse/%s", word))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer r.Body.Close()
-
 	def := Definition{
 		Word: word,
 	}
 
-	// Load HTML
-	doc, err := goquery.NewDocumentFromReader(r.Body)
+	defs, err := DefineDictionaryCom(word)
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("dictionary.com: %v\n\n", defs)
+
+	more, err := DefineLexico(word)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("lexico: %v\n\n", more)
+	defs = append(defs, more...)
+
+	more, err = DefineCambridge(word)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("cambridge: %v\n\n", more)
+	defs = append(defs, more...)
 
 	if auto {
 		// Auto select first option
-		def.Definition = doc.Find("#top-definitions-section + section div:nth-of-type(2) div span").First().Clone().Children().Remove().End().Text()
+		def.Definition = defs[0]
 	} else {
 		// Choose from options
 		fmt.Println("Choose a definition:")
-		options := []string{}
-		doc.Find("#top-definitions-section + section div:nth-of-type(2) div").Each(func(i int, s *goquery.Selection) {
-			fmt.Printf("%d:  %s\n", i+1, s.Text())
-			options = append(options, s.Text())
-		})
+		for i, d := range defs {
+			fmt.Printf("%d:  %s\n", i+1, d)
+		}
 		var choice int
 		fmt.Print("\nYour choice: ")
 		fmt.Scanln(&choice)
 
-		def.Definition = options[choice-1]
+		def.Definition = defs[choice-1]
 	}
 
 	fmt.Printf("\n%s\n", def)

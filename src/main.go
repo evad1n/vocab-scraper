@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	for getAction() {
+	for !getAction() {
 	}
 }
 
@@ -25,7 +25,7 @@ func getAction() bool {
 	case 2:
 		combine.CombineFiles()
 	default:
-		fmt.Printf("%d is not a valid choice\n", choice)
+		fmt.Printf("%d is not a valid choice\n\n", choice)
 		return false
 	}
 	return true
