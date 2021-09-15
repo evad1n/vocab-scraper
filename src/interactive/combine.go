@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"path"
 
 	"github.com/evad1n/vocab-scraper/combine"
 )
@@ -34,7 +36,10 @@ var extractFunc combine.ExtractionFunc = func(bytes []byte) ([]string, error) {
 
 // Read JSON or TXT
 func CombineFiles() error {
-	fileNames, combinedFileName := getCombineFileNames()
+	fileNames, combinedFileName, err := getCombineFileNames()
+	if err != nil {
+		return fmt.Errorf("getting file names: %v", err)
+	}
 
 	words := []string{}
 	for _, fileName := range fileNames {
@@ -43,7 +48,7 @@ func CombineFiles() error {
 			return fmt.Errorf("reading words from file '%s': %v", fileName, err)
 		}
 
-		fmt.Printf("Read %d words from %s", len(definitions), fileName)
+		fmt.Printf("Read %d words from %s", len(addedWords), fileName)
 
 		words = append(words, addedWords...)
 	}
@@ -62,7 +67,7 @@ func CombineFiles() error {
 // Gets file names
 //
 // Returns a list of input files, and the name of the output file
-func getCombineFileNames() ([]string, string) {
+func getCombineFileNames() ([]string, string, error) {
 	inputScanner := bufio.NewScanner(os.Stdin)
 
 	// Files
@@ -70,35 +75,32 @@ func getCombineFileNames() ([]string, string) {
 	inputScanner.Scan()
 	folderName := inputScanner.Text()
 	if folderName == "" {
-		folderName = "in/words.txt"
-	}
-	fmt.Println(fileNames)
-
-	// File 1
-	fmt.Print("\nFile 1 (default 'words1.txt'): ")
-	inputScanner.Scan()
-	file1Name := inputScanner.Text()
-	if file1Name == "" {
-		file1Name = "in/words.txt"
-	}
-
-	// File 2
-	fmt.Print("File 2 (default 'words2.txt'): ")
-	inputScanner.Scan()
-	file2Name := inputScanner.Text()
-	if file2Name == "" {
-		file2Name = "in/words2.json"
+		folderName = "in"
 	}
 
 	// Combined file
-	fmt.Print("File 2 (default 'combined.txt'): ")
+	fmt.Print("Combine file (default 'combined.txt'): ")
 	inputScanner.Scan()
 	combinedFileName := inputScanner.Text()
 	if combinedFileName == "" {
 		combinedFileName = "out/combined.txt"
 	}
 
-	fmt.Printf("\nFile 1: %s\nFile 2: %s\nCombined file: %s\n", file1Name, file2Name, combinedFileName)
+	// Get all files in the specified folder
+	files, err := ioutil.ReadDir(folderName)
+	if err != nil {
+		return nil, combinedFileName, fmt.Errorf("reading directory '%s': %v", folderName, err)
+	}
 
-	return nil, combinedFileName
+	fileNames := make([]string, len(files))
+	fmt.Printf("Found %d files to combine:\n", len(files))
+
+	for i, f := range files {
+		fmt.Println(i, f.Name())
+		fileNames[i] = path.Join(folderName, f.Name())
+	}
+
+	fmt.Printf("\nWill combine to file: %s\n", combinedFileName)
+
+	return fileNames, combinedFileName, nil
 }
