@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/evad1n/vocab-scraper/combine"
-	"github.com/evad1n/vocab-scraper/define"
+	"github.com/evad1n/vocab-scraper/interactive"
 )
 
 func main() {
@@ -21,12 +21,17 @@ func getAction() bool {
 
 	switch choice {
 	case 1:
-		define.FindDefinitions()
+		if err := interactive.FindDefinitions(); err != nil {
+			log.Fatalf("combining files: %v", err)
+		}
 	case 2:
-		combine.CombineFiles()
+		if err := interactive.CombineFiles(); err != nil {
+			log.Fatalf("combining files: %v", err)
+		}
 	default:
 		fmt.Printf("%d is not a valid choice\n\n", choice)
 		return false
 	}
+
 	return true
 }
