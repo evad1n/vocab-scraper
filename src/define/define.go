@@ -18,7 +18,7 @@ func DefineDictionaryCom(word string) ([]string, error) {
 	url := fmt.Sprintf("https://www.dictionary.com/browse/%s", word)
 	r, err := http.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("GET for '%s': %v", url, err)
+		return nil, fmt.Errorf("GET for %q: %v", url, err)
 	}
 	defer r.Body.Close()
 

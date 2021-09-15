@@ -26,7 +26,7 @@ func TestGetUniqueWords(t *testing.T) {
 
 	for _, word := range sortedUniqueWords {
 		if _, exists := dups[word]; exists {
-			t.Fatalf("duplicate word found: '%s'", word)
+			t.Fatalf("duplicate word found: %q", word)
 		}
 		dups[word] = true
 	}

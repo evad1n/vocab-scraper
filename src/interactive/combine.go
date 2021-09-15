@@ -50,7 +50,7 @@ func CombineFiles() error {
 	for _, fileName := range fileNames {
 		addedWords, err := combine.WordsFromFile(fileName, extractFunc)
 		if err != nil {
-			return fmt.Errorf("reading words from file '%s': %v", fileName, err)
+			return fmt.Errorf("reading words from file %q: %v", fileName, err)
 		}
 
 		fmt.Printf("Read %d words from %s", len(addedWords), fileName)
@@ -64,7 +64,7 @@ func CombineFiles() error {
 		return fmt.Errorf("writing words to file: %v", err)
 	}
 
-	fmt.Printf("\nCombines words written to '%s'\n", combinedFileName)
+	fmt.Printf("\nCombines words written to %q\n", combinedFileName)
 
 	return nil
 }
@@ -76,7 +76,7 @@ func getCombineFileNames() ([]string, string, error) {
 	inputScanner := bufio.NewScanner(os.Stdin)
 
 	// Files
-	fmt.Printf("\nFolder name with input files (default '%s'): ", defaultInFolder)
+	fmt.Printf("\nFolder name with input files (default %q): ", defaultInFolder)
 	inputScanner.Scan()
 	folderName := inputScanner.Text()
 	if folderName == "" {
@@ -84,7 +84,7 @@ func getCombineFileNames() ([]string, string, error) {
 	}
 
 	// Combined file
-	fmt.Printf("Combine file (default '%s'): ", defaultCombinedFile)
+	fmt.Printf("Combine file (default %q): ", defaultCombinedFile)
 	inputScanner.Scan()
 	combinedFileName := inputScanner.Text()
 	if combinedFileName == "" {
@@ -94,7 +94,7 @@ func getCombineFileNames() ([]string, string, error) {
 	// Get all files in the specified folder
 	files, err := ioutil.ReadDir(folderName)
 	if err != nil {
-		return nil, combinedFileName, fmt.Errorf("reading directory '%s': %v", folderName, err)
+		return nil, combinedFileName, fmt.Errorf("reading directory %q: %v", folderName, err)
 	}
 
 	fileNames := make([]string, len(files))

@@ -60,7 +60,7 @@ func WordsFromFile(fileName string, extractionFunc ExtractionFunc) ([]string, er
 	case "json":
 		return WordsFromJsonFile(fullPath, extractionFunc)
 	default:
-		return nil, fmt.Errorf("unsupported file type '%s'", fileName)
+		return nil, fmt.Errorf("unsupported file type %q", fileName)
 	}
 }
 
@@ -72,7 +72,7 @@ func WordsFromTxtFile(fileName string) ([]string, error) {
 	// inFile, err := os.Open(path.Join(root, fileName))
 	inFile, err := os.Open(fileName)
 	if err != nil {
-		return nil, fmt.Errorf("opening file '%s': %v", fileName, err)
+		return nil, fmt.Errorf("opening file %q: %v", fileName, err)
 	}
 	defer inFile.Close()
 
@@ -101,14 +101,14 @@ func WordsFromJsonFile(fileName string, extractionFunc ExtractionFunc) ([]string
 	// inFile, err := os.Open(path.Join(root, fileName))
 	inFile, err := os.Open(fileName)
 	if err != nil {
-		return nil, fmt.Errorf("opening file '%s': %v", fileName, err)
+		return nil, fmt.Errorf("opening file %q: %v", fileName, err)
 	}
 	defer inFile.Close()
 
 	// Read file
 	bytes, err := ioutil.ReadAll(inFile)
 	if err != nil {
-		return nil, fmt.Errorf("reading file '%s': %v", fileName, err)
+		return nil, fmt.Errorf("reading file %q: %v", fileName, err)
 	}
 
 	words, err := extractionFunc(bytes)

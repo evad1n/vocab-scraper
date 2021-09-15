@@ -43,7 +43,7 @@ func FindDefinitions() error {
 		log.Fatalf("opening words file: %v", err)
 	}
 	defer inFile.Close()
-	fmt.Printf("Reading words from '%s'\n\n", inFileName)
+	fmt.Printf("Reading words from %q\n\n", inFileName)
 
 	fileScanner := bufio.NewScanner(inFile)
 	// Read file
@@ -73,7 +73,7 @@ func FindDefinitions() error {
 
 	// Write output
 	outFile.Write(data)
-	fmt.Printf("\nDefinitions written to '%s'\n", outFileName)
+	fmt.Printf("\nDefinitions written to %q\n", outFileName)
 
 	return nil
 }
@@ -82,14 +82,14 @@ func FindDefinitions() error {
 func getFileNames() (string, string) {
 	inputScanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Printf("\nInput file (default '%s'): ", defaultInFile)
+	fmt.Printf("\nInput file (default %q): ", defaultInFile)
 	inputScanner.Scan()
 	inFileName := inputScanner.Text()
 	if inFileName == "" {
 		inFileName = defaultInFile
 	}
 
-	fmt.Printf("Output file (default '%s'): ", defaultOutFile)
+	fmt.Printf("Output file (default %q): ", defaultOutFile)
 	inputScanner.Scan()
 	outFileName := inputScanner.Text()
 	if outFileName == "" {
