@@ -19,6 +19,11 @@ type (
 	}
 )
 
+const (
+	defaultInFolder     = "in"
+	defaultCombinedFile = "out/combined.txt"
+)
+
 // Edit this function depending on JSON schema...
 var extractFunc combine.ExtractionFunc = func(bytes []byte) ([]string, error) {
 	var data []CombineJSON
@@ -71,19 +76,19 @@ func getCombineFileNames() ([]string, string, error) {
 	inputScanner := bufio.NewScanner(os.Stdin)
 
 	// Files
-	fmt.Print("\nFolder name with input files (default 'in'): ")
+	fmt.Printf("\nFolder name with input files (default '%s'): ", defaultInFolder)
 	inputScanner.Scan()
 	folderName := inputScanner.Text()
 	if folderName == "" {
-		folderName = "in"
+		folderName = defaultInFolder
 	}
 
 	// Combined file
-	fmt.Print("Combine file (default 'combined.txt'): ")
+	fmt.Printf("Combine file (default '%s'): ", defaultCombinedFile)
 	inputScanner.Scan()
 	combinedFileName := inputScanner.Text()
 	if combinedFileName == "" {
-		combinedFileName = "out/combined.txt"
+		combinedFileName = defaultCombinedFile
 	}
 
 	// Get all files in the specified folder

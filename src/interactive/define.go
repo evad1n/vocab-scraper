@@ -18,9 +18,14 @@ type (
 	}
 )
 
+const (
+	defaultInFile  = "in/test.txt"
+	defaultOutFile = "out/definitions.json"
+)
+
 var (
-	definitions []Definition
-	auto        = false
+	definitions        []Definition
+	automaticSelection = false // Automatically select the first definition
 )
 
 func FindDefinitions() error {
@@ -30,7 +35,7 @@ func FindDefinitions() error {
 	inFileName, outFileName := getFileNames()
 
 	// Automatic/Manual selection
-	auto = getSelectionType()
+	automaticSelection = getSelectionType()
 
 	// Open input file
 	inFile, err := os.Open(path.Join(root, inFileName))
@@ -77,18 +82,18 @@ func FindDefinitions() error {
 func getFileNames() (string, string) {
 	inputScanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Print("\nInput file (default 'words.txt'): ")
+	fmt.Printf("\nInput file (default '%s'): ", defaultInFile)
 	inputScanner.Scan()
 	inFileName := inputScanner.Text()
 	if inFileName == "" {
-		inFileName = "in/test.txt"
+		inFileName = defaultInFile
 	}
 
-	fmt.Print("Output file (default 'definitions.json'): ")
+	fmt.Printf("Output file (default '%s'): ", defaultOutFile)
 	inputScanner.Scan()
 	outFileName := inputScanner.Text()
 	if outFileName == "" {
-		outFileName = "out/definitions.json"
+		outFileName = defaultOutFile
 	}
 
 	fmt.Printf("\nIn file:  %s\nOut file: %s\n\n", inFileName, outFileName)
@@ -96,7 +101,9 @@ func getFileNames() (string, string) {
 	return inFileName, outFileName
 }
 
-// Returns if selection type is automatic
+// Asks user for manual/automatic definition selection
+//
+// Returns if selection is automatic
 func getSelectionType() bool {
 	fmt.Println("Selection type:")
 	fmt.Println("1: Automatic")
@@ -113,27 +120,27 @@ func getDef(word string) Definition {
 		Word: word,
 	}
 
-	defs, err := define.DefineDictionaryCom(word)
+	dictDefs, err := define.DefineDictionaryCom(word)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("dictionary.com: %v\n\n", defs)
+	fmt.Printf("dictionary.com: %v\n\n", dictDefs)
 
-	more, err := define.DefineLexico(word)
+	lexicoDefs, err := define.DefineLexico(word)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("lexico: %v\n\n", more)
-	defs = append(defs, more...)
+	fmt.Printf("lexico: %v\n\n", lexicoDefs)
 
-	more, err = define.DefineCambridge(word)
+	cambridgeDefs, err := define.DefineCambridge(word)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("cambridge: %v\n\n", more)
-	defs = append(defs, more...)
+	fmt.Printf("cambridge: %v\n\n", cambridgeDefs)
 
-	if auto {
+	defs := append(append(dictDefs, lexicoDefs...), cambridgeDefs...)
+
+	if automaticSelection {
 		// Auto select first option
 		def.Definition = defs[0]
 	} else {
