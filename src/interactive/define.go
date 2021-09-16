@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/evad1n/vocab-scraper/define"
 )
@@ -51,6 +52,7 @@ func FindDefinitions() error {
 	for fileScanner.Scan() {
 		i++
 		word := fileScanner.Text()
+		fmt.Println(strings.Repeat("=", 20))
 		fmt.Printf("%d: %s\n", i, word)
 		definitions = append(definitions, getDef(word))
 	}
@@ -66,7 +68,7 @@ func FindDefinitions() error {
 	defer outFile.Close()
 
 	// JSON
-	data, err := json.MarshalIndent(definitions, "", " ")
+	data, err := json.MarshalIndent(definitions, "", strings.Repeat(" ", 4))
 	if err != nil {
 		log.Fatalf("marshalling json: %v", err)
 	}
@@ -120,43 +122,53 @@ func getDef(word string) Definition {
 		Word: word,
 	}
 
-	dictDefs, err := define.DefineDictionaryCom(word)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("dictionary.com: %v\n\n", dictDefs)
+	i := 1
 
-	lexicoDefs, err := define.DefineLexico(word)
+	dictDefs, err := define.DictionaryCom.Define(word)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("lexico: %v\n\n", lexicoDefs)
+	fmt.Println("\ndictionary.com:")
+	for _, def := range dictDefs {
+		fmt.Printf("%d:  %s\n", i, def)
+		i++
+	}
 
-	cambridgeDefs, err := define.DefineCambridge(word)
+	lexicoDefs, err := define.Lexico.Define(word)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("cambridge: %v\n\n", cambridgeDefs)
+	fmt.Println("\nlexico:")
+	for _, def := range lexicoDefs {
+		fmt.Printf("%d:  %s\n", i, def)
+		i++
+	}
+
+	cambridgeDefs, err := define.Cambridge.Define(word)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("\ncambridge:")
+	for _, def := range cambridgeDefs {
+		fmt.Printf("%d:  %s\n", i, def)
+		i++
+	}
 
 	defs := append(append(dictDefs, lexicoDefs...), cambridgeDefs...)
 
 	if automaticSelection {
 		// Auto select first option
-		def.Definition = defs[0]
+		// def.Definition = defs[0]
 	} else {
 		// Choose from options
-		fmt.Println("Choose a definition:")
-		for i, d := range defs {
-			fmt.Printf("%d:  %s\n", i+1, d)
-		}
 		var choice int
-		fmt.Print("\nYour choice: ")
+		fmt.Println("\nChoose a definition:")
 		fmt.Scanln(&choice)
 
 		def.Definition = defs[choice-1]
 	}
 
-	fmt.Printf("\n%s\n", def)
+	fmt.Printf("\n%s\n\n", def)
 
 	return def
 }
