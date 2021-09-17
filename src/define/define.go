@@ -21,16 +21,19 @@ type (
 )
 
 var (
+	// Dictionary.com
 	DictionaryCom = Endpoint{
 		QueryURL: urlDictionaryCom,
 		GetDefs:  scrapeDictionaryCom,
 	}
 
+	// lexico.com
 	Lexico = Endpoint{
 		QueryURL: urlLexico,
 		GetDefs:  scrapeLexico,
 	}
 
+	// dictionary.cambridge.org
 	Cambridge = Endpoint{
 		QueryURL: urlCambridge,
 		GetDefs:  scrapeCambridge,
@@ -56,7 +59,6 @@ func (e Endpoint) Define(word string) ([]string, error) {
 
 // Endpoint specifics
 
-// Dictionary.com
 func urlDictionaryCom(word string) string {
 	return fmt.Sprintf("https://www.dictionary.com/browse/%s", word)
 }
@@ -82,7 +84,6 @@ func scrapeDictionaryCom(doc *goquery.Document) []string {
 	return defs
 }
 
-// lexico.com
 func urlLexico(word string) string {
 	return fmt.Sprintf("https://www.lexico.com/en/definition/%s", word)
 }
@@ -97,7 +98,6 @@ func scrapeLexico(doc *goquery.Document) []string {
 	return defs
 }
 
-// dictionary.cambridge.org
 func urlCambridge(word string) string {
 	return fmt.Sprintf("https://dictionary.cambridge.org/us/dictionary/english/%s", word)
 }
