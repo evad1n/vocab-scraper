@@ -1,4 +1,4 @@
 all:
 	GOOS=linux go build main.go
-	zip dictionary-com.zip main
+	zip define.zip main
 	rm main

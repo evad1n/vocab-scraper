@@ -10,8 +10,13 @@ import (
 	"github.com/evad1n/vocab-scraper/define"
 )
 
-type Response struct {
+type Result struct {
+	Source      string   `json:"source"`
 	Definitions []string `json:"definitions"`
+}
+
+type InvalidSourceResponse struct {
+	Sources []string `json:"acceptedSources"`
 }
 
 var (
@@ -30,19 +35,38 @@ func HandleRequest(ctx context.Context, req events.APIGatewayProxyRequest) (even
 	// Only 1 endpoint or gather all definitions?
 	source, sourceSpecified := req.QueryStringParameters["source"]
 
-	var defs []string
+	var results []Result
 	if !sourceSpecified {
+		for _, source := range acceptedSources {
 
-	} else if {
+		}
+	} else {
 		defs, err := defineSource(word, source)
+		if err != nil {
+			return error500(fmt.Errorf("finding definitions for %q: %v", source, err))
+		}
+
+		returnJSONData, err := json.Marshal(defs)
+		if err != nil {
+			return error500(fmt.Errorf("marshalling json for defs: %v", err))
+		}
+
+		return events.APIGatewayProxyResponse{
+			StatusCode: 200,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+			Body: string(returnJSONData),
+		}, nil
 	}
+
 	response := fmt.Sprintf("Defining %q...", req.QueryStringParameters["word"])
 
 	defs, err := define.DictionaryCom.Define(word)
 
-	defs
+	// defs
 
-	returnJSONData, err := json.Marshal(response)
+	returnJSONData, err := json.Marshal(r)
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
@@ -66,8 +90,18 @@ func defineSource(word string, source string) ([]string, error) {
 	}
 }
 
-func returnError(err error) events.APIGatewayProxyResponse {
+func invalidSource() {
+	s := "accepted sources: \n"
+	for _, source := range acceptedSources {
+		s += fmt.Sprintf("%s,\n", source)
+	}
+}
 
+func error500(err error) (events.APIGatewayProxyResponse, error) {
+	return events.APIGatewayProxyResponse{
+		StatusCode: 500,
+		Body:       err.Error(),
+	}, nil
 }
 
 func contains(list []string, val string) bool {
@@ -75,7 +109,7 @@ func contains(list []string, val string) bool {
 		if val == x {
 			return true
 		}
-}
+	}
 	return false
 }
 
